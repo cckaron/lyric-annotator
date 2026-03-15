@@ -4,7 +4,7 @@ import './AnnotationToolbar.css';
 const ANNOTATION_TYPES = [
     { type: 'stress', label: 'Stress (重音)', icon: 'ˈ', shortcut: '1' },
     { type: 'unstressed', label: 'Unstressed (輕音)', icon: 'ˌ', shortcut: '2' },
-    { type: 'elongated', label: 'Elongated (拉長音)', icon: '〰', shortcut: '3' },
+    { type: 'elongated', label: 'Elongated (拉長音)', icon: '≫', shortcut: '3' },
     { type: 'aspirated', label: 'Aspirated (氣音)', icon: 'ʰ', shortcut: '4' },
     { type: 'breath_pause', label: 'Breath (換氣)', icon: 'v', shortcut: '5' },
     { type: 'linking', label: 'Linking (連字)', icon: '◡', shortcut: '6' },
@@ -18,6 +18,12 @@ const AnnotationToolbar = ({ onAddAnnotation }) => {
     const [isCustomOpen, setIsCustomOpen] = useState(false);
 
     const handleAdd = (type, value = null) => {
+        // Find the default icon for this type if no value is provided
+        if (value === null && type !== 'beat' && type !== 'section') {
+            const config = ANNOTATION_TYPES.find(t => t.type === type);
+            if (config) value = config.icon;
+        }
+        
         onAddAnnotation(type, value);
         if (type === 'custom') {
             setIsCustomOpen(false);

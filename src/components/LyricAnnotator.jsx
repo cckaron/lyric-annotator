@@ -4,6 +4,17 @@ import { getSelectionOffsets, buildRenderChunks } from '../utils/textUtils';
 import AnnotationToolbar from './AnnotationToolbar';
 import SectionOutline from './SectionOutline';
 
+const SYMBOL_MAP = {
+    stress: 'ˈ',
+    unstressed: 'ˌ',
+    elongated: '≫',
+    aspirated: 'ʰ',
+    breath_pause: 'v',
+    linking: '◡',
+    beat: '1',
+    silent: '⧵',
+};
+
 const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
     const containerRef = useRef(null);
     const [activeSelection, setActiveSelection] = useState(null);
@@ -197,7 +208,7 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
             >
                 <span 
                     className={`annotation-marker type-${ann.type}`} 
-                    data-marker={ann.value}
+                    data-marker={ann.value || SYMBOL_MAP[ann.type] || ''}
                     onClick={(e) => {
                         if (ann.type === 'section') {
                             e.stopPropagation();
