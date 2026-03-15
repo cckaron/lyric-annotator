@@ -3,12 +3,14 @@ import './AnnotationToolbar.css';
 
 const ANNOTATION_TYPES = [
     { type: 'stress', label: 'Stress (重音)', icon: 'ˈ', shortcut: '1' },
-    { type: 'elongated', label: 'Elongated (拉長音)', icon: '〰', shortcut: '2' },
-    { type: 'aspirated', label: 'Aspirated (氣音)', icon: 'ʰ', shortcut: '3' },
-    { type: 'breath_pause', label: 'Breath (換氣)', icon: 'v', shortcut: '4' },
-    { type: 'linking', label: 'Linking (連字)', icon: '◡', shortcut: '5' },
-    { type: 'silent', label: 'Silent (不發音)', icon: '⧵', shortcut: '6' },
-    { type: 'section', label: 'Section (段落)', icon: '📑', shortcut: '7' },
+    { type: 'unstressed', label: 'Unstressed (輕音)', icon: 'ˌ', shortcut: '2' },
+    { type: 'elongated', label: 'Elongated (拉長音)', icon: '〰', shortcut: '3' },
+    { type: 'aspirated', label: 'Aspirated (氣音)', icon: 'ʰ', shortcut: '4' },
+    { type: 'breath_pause', label: 'Breath (換氣)', icon: 'v', shortcut: '5' },
+    { type: 'linking', label: 'Linking (連字)', icon: '◡', shortcut: '6' },
+    { type: 'silent', label: 'Silent (不發音)', icon: '⧵', shortcut: '7' },
+    { type: 'beat', label: 'Beat (節拍)', icon: '●', shortcut: '9' },
+    { type: 'section', label: 'Section (段落)', icon: '📑', shortcut: '8' },
 ];
 
 const AnnotationToolbar = ({ onAddAnnotation }) => {
@@ -30,7 +32,7 @@ const AnnotationToolbar = ({ onAddAnnotation }) => {
                     <button
                         key={type}
                         className="toolbar-btn"
-                        onClick={() => handleAdd(type, icon)}
+                        onClick={() => handleAdd(type)}
                         title={label}
                     >
                         <span className="btn-icon">{icon}</span>

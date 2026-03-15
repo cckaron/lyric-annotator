@@ -139,19 +139,6 @@
   width: 100%;
 }
 
-.sidebar-container {
-  flex-shrink: 0;
-  width: 260px;
-}
-
-.canvas-container {
-  flex: 1;
-  min-width: 0; /* Prevents flex blowout */
-  /* Override the annotator-wrapper's centering so it uses all available width */
-  display: flex;
-  flex-direction: column;
-}
-
 .textarea-wrapper {
   flex: 1;
   border-radius: var(--radius-md);

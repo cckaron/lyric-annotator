@@ -53,6 +53,17 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
         let annEnd = activeSelection.end;
         let annText = activeSelection.text;
 
+        // Automatically trim whitespace from the selection to prevent markers from being off-center
+        // (Double-clicking a word often includes a trailing space)
+        const leadingWhitespace = annText.match(/^\s*/)[0].length;
+        const trailingWhitespace = annText.match(/\s*$/)[0].length;
+        
+        if (leadingWhitespace > 0 || trailingWhitespace > 0) {
+            annStart += leadingWhitespace;
+            annEnd -= trailingWhitespace;
+            annText = annText.substring(leadingWhitespace, annText.length - trailingWhitespace);
+        }
+
         if (type === 'breath_pause') {
             const spaceIndex = activeSelection.text.indexOf(' ');
             if (spaceIndex !== -1) {
@@ -70,6 +81,10 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
 
         if (type === 'section' && !value) {
             value = 'Section Name'; // Default name for a new section
+        }
+
+        if (type === 'beat' && !value) {
+            value = '1';
         }
 
         // Check for overlaps with the *same type* of annotation
@@ -171,9 +186,9 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
                 id={ann.type === 'section' ? `section-${ann.id}` : undefined}
                 className={`lyric-annotated type-${ann.type} ${isEditing ? 'is-editing' : ''}`}
                 onClick={(e) => {
-                    // For sections, we only want to trigger edit if they click the marker, not the text inside.
-                    // So we ignore clicks on the wrapper if it's a section, and handle it on the marker instead.
-                    if (ann.type !== 'section') {
+                    // For sections and beats, we only want to trigger edit if they click the marker, not the text inside.
+                    // So we ignore clicks on the wrapper if it's a section/beat, and handle it on the marker instead.
+                    if (ann.type !== 'section' && ann.type !== 'beat') {
                         e.stopPropagation();
                         if (!isEditing) setEditingAnnId(ann.id);
                     }
@@ -187,9 +202,24 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
                         if (ann.type === 'section') {
                             e.stopPropagation();
                             if (!isEditing) setEditingAnnId(ann.id);
+                        } else if (ann.type === 'beat') {
+                            e.stopPropagation();
+                            // Cycle beat value 1 -> 2 -> 3 -> 4 -> 1
+                            const currentValue = parseInt(ann.value) || 1;
+                            const nextValue = (currentValue % 4) + 1;
+                            handleEditChange(ann.id, nextValue.toString());
                         }
                     }}
-                    title={ann.type === 'section' && !isEditing ? "Click to edit section name. Trash icon to remove." : ""}
+                    onContextMenu={(e) => {
+                        if (ann.type === 'beat') {
+                            e.preventDefault();
+                            handleRemoveAnnotation(e, ann.id);
+                        }
+                    }}
+                    title={
+                        ann.type === 'section' && !isEditing ? "Click to edit section name. Trash icon to remove." : 
+                        ann.type === 'beat' ? "Click: cycle beat (1-4) | Right-click: remove" : ""
+                    }
                 >
                     {isEditing && (
                         <div className="annotation-edit-popup">

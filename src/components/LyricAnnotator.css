@@ -90,7 +90,7 @@
     border-bottom-color: var(--accent-primary);
 }
 
-.lyric-annotated:hover .annotation-marker {
+.lyric-annotated:hover > .annotation-marker {
     transform: translateX(-50%) translateY(-2px) scale(1.1);
     color: var(--accent-hover);
     text-shadow: 0 0 10px var(--accent-glow);
@@ -195,9 +195,10 @@
 /* ------------------------------------- */
 
 /* Hide the default marker popup for purely visual types unless editing */
-.lyric-annotated.type-linking:not(.is-editing) .annotation-marker,
-.lyric-annotated.type-silent:not(.is-editing) .annotation-marker,
-.lyric-annotated.type-stress:not(.is-editing) .annotation-marker {
+.lyric-annotated.type-linking:not(.is-editing) > .annotation-marker,
+.lyric-annotated.type-silent:not(.is-editing) > .annotation-marker,
+.lyric-annotated.type-stress:not(.is-editing) > .annotation-marker,
+.lyric-annotated.type-unstressed:not(.is-editing) > .annotation-marker {
     display: none;
 }
 
@@ -261,6 +262,19 @@
     background: transparent; /* Remove the inner grey background */
 }
 
+/* 3b. Unstressed (輕音) — soft, smaller, slightly faded */
+.lyric-annotated.type-unstressed {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    font-style: italic;
+    opacity: 0.8;
+    letter-spacing: normal;
+}
+
+.lyric-annotated.type-unstressed .annotated-text {
+    background: transparent;
+}
+
 /* 4. Section (段落) */
 .lyric-annotated.type-section {
     display: block; /* Force the selected text into a block */
@@ -274,7 +288,7 @@
 }
 
 /* Treat the marker as a block header, not a floating icon */
-.lyric-annotated.type-section .annotation-marker {
+.lyric-annotated.type-section > .annotation-marker {
     position: absolute;
     top: -2.2rem;
     left: 0;
@@ -290,13 +304,13 @@
 }
 
 /* Prevent tooltip centering behavior on hover for sections */
-.lyric-annotated.type-section:hover .annotation-marker {
+.lyric-annotated.type-section:hover > .annotation-marker {
     transform: translateY(-2px) scale(1.05); /* Slight lift without recentering */
     max-width: none;
 }
 
 /* Allow users to click the marker to edit it */
-.lyric-annotated.type-section .annotation-marker {
+.lyric-annotated.type-section > .annotation-marker {
     pointer-events: auto; /* Re-enable clicks that were disabled on base marker */
     cursor: pointer;
 }
@@ -398,4 +412,56 @@
     color: #a78bfa;
     font-style: italic;
     font-weight: 500;
+}
+
+.annotation-marker.type-unstressed {
+    color: #94a3b8; /* Slate-400 for a muted feel */
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
+/* 5. Beat (節拍) — High contrast circular badge */
+.lyric-annotated.type-beat {
+    display: inline-flex;
+    vertical-align: middle;
+    line-height: normal; /* Use flex alignment instead of line-height height scaling */
+    margin: 0 1px; /* Subtle breathing room */
+}
+
+.lyric-annotated.type-beat .annotated-text {
+    background: transparent;
+}
+
+.lyric-annotated.type-beat .annotation-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    position: absolute;
+    top: auto; /* Reset global top: -1.3rem */
+    bottom: -1.0rem; /* Position tightly below text */
+    left: 50%;
+    transform: translateX(-50%);
+    
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    
+    background: #00d2ff; /* Vibrant Cyan/Blue */
+    color: #000;
+    font-size: 0.8rem; /* Slightly larger for better readability */
+    font-weight: 900;
+    line-height: 1; /* Ensure vertical centering in flex */
+    text-align: center;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 8px rgba(0, 210, 255, 0.4);
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 25;
+}
+
+.lyric-annotated.type-beat:hover > .annotation-marker {
+    transform: translateX(-50%) translateY(2px) scale(1.2);
+    box-shadow: 0 0 12px rgba(0, 210, 255, 0.7);
+    background: #4de0ff;
 }

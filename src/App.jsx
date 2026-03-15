@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import LyricEditor from './components/LyricEditor'
 import LyricAnnotator from './components/LyricAnnotator'
-import AnnotationToolbar from './components/AnnotationToolbar'
-import SectionOutline from './components/SectionOutline'
 import { adjustAnnotations } from './utils/textUtils'
 
 const STORAGE_KEY = 'lyric_annotator_data';
