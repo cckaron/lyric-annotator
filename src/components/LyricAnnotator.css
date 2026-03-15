@@ -1,0 +1,401 @@
+/* Root container: two-column layout with sidebar and main area */
+.annotator-root {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* Sidebar column (SectionOutline) */
+.annotator-sidebar {
+    flex-shrink: 0;
+    width: 260px;
+    align-self: flex-start;
+    position: sticky;
+    top: 6rem; /* Sticky below the fixed header */
+}
+
+/* Main column: toolbar + lyric canvas */
+.annotator-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+
+
+.lyric-canvas {
+    width: 100%;
+    border-radius: var(--radius-md);
+    padding: 3rem;
+    min-height: 400px;
+    max-width: 800px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    transition: all var(--transition-normal);
+}
+
+.lyric-content {
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    line-height: 2.2; /* Restored line height to normal reading level */
+    white-space: pre-wrap; /* Preserve formatting */
+    color: var(--text-primary);
+    cursor: text;
+}
+
+.section-header {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.2rem 0.8rem;
+    border-radius: var(--radius-full);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--border-subtle);
+    user-select: none;
+}
+
+.lyric-text::selection,
+.annotated-text::selection {
+    background: var(--accent-glow);
+    color: #fff;
+}
+
+.lyric-annotated {
+    position: relative;
+    /* Use 'inline' instead of 'inline-block' so it can wrap naturally across lines */
+    display: inline;
+    cursor: pointer;
+    border-bottom: 2px dashed transparent;
+    transition: all var(--transition-fast);
+    
+    /* Ensure styles wrap correctly across lines */
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    
+    /* Safely forces the line box to expand (top and bottom) ONLY when an annotation is present */
+    line-height: 3.5;
+}
+
+.lyric-annotated:hover {
+    border-bottom-color: var(--accent-primary);
+}
+
+.lyric-annotated:hover .annotation-marker {
+    transform: translateX(-50%) translateY(-2px) scale(1.1);
+    color: var(--accent-hover);
+    text-shadow: 0 0 10px var(--accent-glow);
+}
+
+.annotated-text {
+    /* The actual highlighted text */
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+    padding: 0;
+    
+    /* Essential for multi-line highlights to preserve radius and background cleanly */
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
+.annotation-marker {
+    position: absolute;
+    top: -1.3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+    pointer-events: none;
+    /* Let clicks pass to the parent wrapper */
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    padding: 0 0.3rem;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: all var(--transition-fast);
+
+    /* Truncation base styles */
+    max-width: 60px;
+    /* Base width before truncating */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    z-index: 10;
+    border: 1px solid var(--border-subtle);
+}
+
+.annotation-marker::before {
+    content: attr(data-marker);
+}
+
+.lyric-annotated:hover .annotation-marker {
+    transform: translateX(-50%) translateY(-2px) scale(1.1);
+    color: var(--accent-hover);
+    text-shadow: 0 0 10px var(--accent-glow);
+
+    /* Hover expansion */
+    max-width: 300px;
+    z-index: 20;
+}
+
+.lyric-annotated.is-editing .annotation-marker {
+    pointer-events: auto;
+    /* Allow interaction with input/button */
+    max-width: none;
+    /* Let popup size naturally */
+    overflow: visible;
+    z-index: 30;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Inter-word breath mark specific styling */
+.lyric-annotated.type-breath_pause {
+    /* Hide the actual space character, so only the marker is seen between words */
+    font-size: 0;
+    display: inline-block;
+}
+
+.lyric-annotated.type-breath_pause .annotation-marker {
+    position: static;
+    transform: none;
+    font-size: 1rem;
+    color: var(--accent-primary);
+    background: transparent;
+    padding: 0 0.5rem;
+    border: none;
+    box-shadow: none;
+    line-height: inherit;
+    display: inline-block;
+    max-width: none;
+    overflow: visible;
+}
+
+.lyric-annotated.type-breath_pause:hover .annotation-marker {
+    transform: scale(1.1);
+    background: transparent;
+    box-shadow: none;
+}
+
+/* ------------------------------------- */
+/* Purely Visual Annotations (No Labels) */
+/* ------------------------------------- */
+
+/* Hide the default marker popup for purely visual types unless editing */
+.lyric-annotated.type-linking:not(.is-editing) .annotation-marker,
+.lyric-annotated.type-silent:not(.is-editing) .annotation-marker,
+.lyric-annotated.type-stress:not(.is-editing) .annotation-marker {
+    display: none;
+}
+
+/* 1. Linking (連字) */
+.lyric-annotated.type-linking {
+    position: relative;
+    display: inline-block;
+}
+
+.lyric-annotated.type-linking::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    /* Adjust curve placement */
+    left: 0;
+    width: 100%;
+    height: 10px;
+    border-bottom: 2px solid var(--accent-primary);
+    border-left: 2px solid transparent;
+    /* Required for a semi-circular curve */
+    border-right: 2px solid transparent;
+    border-radius: 50%;
+    /* Forms the U-shape */
+    pointer-events: none;
+}
+
+/* 2. Silent (不發音) */
+.lyric-annotated.type-silent {
+    position: relative;
+    display: inline-block;
+    color: var(--text-muted);
+    /* Dim the text */
+}
+
+.lyric-annotated.type-silent::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -5%;
+    width: 110%;
+    /* Slightly wider than the text */
+    height: 1.5px;
+    background-color: var(--text-secondary);
+    transform: rotate(-15deg);
+    /* Diagonal strikethrough */
+    pointer-events: none;
+}
+
+/* 3. Stress (重音) */
+.lyric-annotated.type-stress {
+    background-color: rgba(250, 204, 21, 0.25); /* Yellow highlighter effect */
+    color: #fce72b; /* Bright yellow text */
+    font-weight: 900; /* Extra bold */
+    border-radius: var(--radius-sm);
+    padding: 0 0.1em;
+    text-shadow: 0 0 12px rgba(250, 204, 21, 0.4);
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.1);
+}
+
+.lyric-annotated.type-stress .annotated-text {
+    background: transparent; /* Remove the inner grey background */
+}
+
+/* 4. Section (段落) */
+.lyric-annotated.type-section {
+    display: block; /* Force the selected text into a block */
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 2.5rem 1.5rem 1.5rem 1.5rem; /* Large top padding to avoid intersecting with inner floating markers */
+    margin-top: 3.5rem; /* Increased top margin so the header marker doesn't clip into the container boundary above */
+    margin-bottom: 1rem;
+    text-align: left; /* Reset alignment if canvas is centered */
+}
+
+/* Treat the marker as a block header, not a floating icon */
+.lyric-annotated.type-section .annotation-marker {
+    position: absolute;
+    top: -2.2rem;
+    left: 0;
+    transform: none; /* Remove horizontal centering */
+    
+    /* Override default marker truncation and styling */
+    max-width: none;
+    overflow: visible;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+/* Prevent tooltip centering behavior on hover for sections */
+.lyric-annotated.type-section:hover .annotation-marker {
+    transform: translateY(-2px) scale(1.05); /* Slight lift without recentering */
+    max-width: none;
+}
+
+/* Allow users to click the marker to edit it */
+.lyric-annotated.type-section .annotation-marker {
+    pointer-events: auto; /* Re-enable clicks that were disabled on base marker */
+    cursor: pointer;
+}
+
+/* Style the text injected via data-marker */
+.lyric-annotated.type-section .annotation-marker::before {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.2rem 0.8rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-subtle);
+}
+
+/* Relocate the edit popup for sections so it aligns with the left */
+.lyric-annotated.type-section .annotation-edit-popup {
+    left: 0;
+    transform: none;
+    margin-top: -0.5rem;
+}
+
+.lyric-annotated.is-editing .annotation-marker::before {
+    display: none;
+    /* Hide the text, show the popup */
+}
+
+.annotation-edit-popup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(10px);
+}
+
+.annotation-edit-popup input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    outline: none;
+    min-width: 80px;
+}
+
+.annotation-edit-popup .remove-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.2rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.annotation-edit-popup .remove-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.1);
+}
+
+/* Specific type styles */
+.annotation-marker.type-primaryStress {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.annotation-marker.type-secondaryStress {
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.3);
+}
+
+.annotation-marker.type-breath,
+.annotation-marker.type-longBreath {
+    color: #60a5fa;
+    border-color: rgba(96, 165, 250, 0.3);
+    font-size: 1.1rem;
+}
+
+.annotation-marker.type-linking {
+    color: #f472b6;
+    border-color: rgba(244, 114, 182, 0.3);
+    font-size: 1.2rem;
+    top: 1.2rem;
+    /* Linking usually happens underneath! Wait, the prompt said "above selected text". We'll keep it above. */
+    top: -1.4rem;
+}
+
+.annotation-marker.type-custom {
+    color: #a78bfa;
+    font-style: italic;
+    font-weight: 500;
+}
