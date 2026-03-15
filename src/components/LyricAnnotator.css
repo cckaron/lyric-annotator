@@ -362,7 +362,15 @@
     transform: scale(1.1);
 }
 
-/* Marker-Specific Vibrant Colors */
+/* Marker-Specific Vibrant Colors & Highlights */
+.lyric-annotated.type-elongated {
+    background-color: rgba(255, 126, 22, 0.2); /* Vibrant Orange Highlighter */
+    border-radius: var(--radius-sm);
+    padding: 0 0.1em;
+    color: #ffb170; /* Soft bright orange text */
+    font-weight: 700;
+}
+
 .lyric-annotated.type-elongated > .annotation-marker { background: #ff7e16; border-color: #ffb170; color: #fff; } /* Vibrant Orange */
 .lyric-annotated.type-aspirated > .annotation-marker { background: #ec4899; border-color: #f472b6; } /* Pink */
 .lyric-annotated.type-linking > .annotation-marker { background: #8b5cf6; border-color: #a78bfa; } /* Purple */
