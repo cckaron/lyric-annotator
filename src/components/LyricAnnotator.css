@@ -1,117 +1,162 @@
-/* Root container: two-column layout with sidebar and main area */
+/* ========================================
+   ANNOTATOR ROOT — fills full parent height
+   ======================================== */
+
 .annotator-root {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    gap: 1.5rem;
+    align-items: stretch;
     width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
-/* Sidebar column (SectionOutline) */
+/* ========================================
+   SIDEBAR — fixed-width, scrollable
+   ======================================== */
+
 .annotator-sidebar {
     flex-shrink: 0;
-    width: 260px;
-    align-self: flex-start;
-    position: sticky;
-    top: 6rem;
-    /* Sticky below the fixed header */
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    border-right: 1px solid var(--border-subtle);
+    background: rgba(255,255,255,0.015);
+    padding: 1.25rem 0.75rem;
+    gap: 0.25rem;
 }
 
-/* Main column: toolbar + lyric canvas */
+/* ========================================
+   MAIN COLUMN — toolbar + lyric canvas
+   ======================================== */
+
 .annotator-main {
     display: flex;
     flex-direction: column;
-    align-items: center;
     flex: 1;
     min-width: 0;
+    overflow: hidden;
 }
 
-
+/* ========================================
+   LYRIC CANVAS — fills all remaining height
+   ======================================== */
 
 .lyric-canvas {
+    flex: 1;
+    overflow-y: auto;
     width: 100%;
-    border-radius: var(--radius-md);
-    padding: 3rem;
-    min-height: 400px;
-    max-width: 800px;
-    box-shadow: var(--shadow-lg);
+    /* Remove max-width cap so it truly fills the main column */
+    max-width: none;
+    border-radius: 0;
+    padding: 2.5rem 3rem;
     position: relative;
-    transition: all var(--transition-normal);
+    transition: background var(--transition-normal);
+    /* Subtle inner glow on the top edge */
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
+
+/* Smooth scrollbar */
+.lyric-canvas::-webkit-scrollbar {
+    width: 6px;
+}
+.lyric-canvas::-webkit-scrollbar-track {
+    background: transparent;
+}
+.lyric-canvas::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+}
+.lyric-canvas::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+/* ========================================
+   LYRIC CONTENT
+   ======================================== */
 
 .lyric-content {
     font-family: var(--font-body);
     font-size: 1.25rem;
-    line-height: 2.8; /* Sane height for top/bottom markers */
+    line-height: 2.8;
     white-space: pre-wrap;
     color: var(--text-primary);
     cursor: text;
+    /* Keep a comfortable max reading width centered */
+    max-width: 860px;
+    margin: 0 auto;
 }
 
 .section-header {
     display: inline-block;
     font-family: var(--font-sans);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     color: var(--text-muted);
-    background: transparent; /* Clean background */
-    padding: 0.2rem 0.8rem;
+    background: rgba(139,92,246,0.07);
+    padding: 0.2rem 0.75rem;
     border-radius: var(--radius-full);
     margin: 1.5rem 0 0.5rem 0;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid rgba(139,92,246,0.2);
     user-select: none;
 }
 
+/* Selection color */
 .lyric-text::selection,
 .annotated-text::selection {
     background: var(--accent-glow);
     color: #fff;
 }
 
+/* ========================================
+   ANNOTATION BASE STYLES
+   ======================================== */
+
 .lyric-annotated {
     position: relative;
-    display: inline; /* Back to stable inline */
+    display: inline;
     cursor: pointer;
     transition: all var(--transition-fast);
 }
 
 .annotated-text {
-    /* The actual highlighted text - NO background hints to avoid ghosting */
-    background: transparent; 
+    background: transparent;
     border-radius: 0;
     padding: 0;
-    
-    /* Essential for multi-line highlights */
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
 }
+
+/* ========================================
+   ANNOTATION MARKER — floating pill
+   ======================================== */
 
 .annotation-marker {
     position: absolute;
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 0.9rem;
-    font-weight: 900;
+    font-size: 0.85rem;
+    font-weight: 800;
     color: #ffffff;
     pointer-events: none;
     font-family: var(--font-sans);
-    
-    /* Solid high-contrast pill - Force NO shadows/blurs */
-    background: #222; 
+
+    background: #1e1e2e;
     padding: 0 8px;
     height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    
-    transition: none;
-    box-shadow: none !important;
-    text-shadow: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+
+    transition: transform var(--transition-fast);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    text-shadow: none;
     white-space: nowrap;
     z-index: 100;
 }
@@ -121,27 +166,26 @@
 }
 
 .lyric-annotated:hover .annotation-marker {
-    transform: translateX(-50%) translateY(-2px); /* Only slight lift, no scale */
-    color: #fff;
-    text-shadow: none;
+    transform: translateX(-50%) translateY(-3px);
 }
 
+/* Editing state */
 .lyric-annotated.is-editing .annotation-marker {
     pointer-events: auto;
-    /* Allow interaction with input/button */
-    max-width: none;
-    /* Let popup size naturally */
     overflow: visible;
-    z-index: 30;
+    z-index: 300;
     padding: 0;
     background: transparent;
     border: none;
     box-shadow: none;
 }
 
-/* Inter-word breath mark specific styling */
+/* ========================================
+   SPECIFIC TYPE STYLES
+   ======================================== */
+
+/* Breath pause — inline between words */
 .lyric-annotated.type-breath_pause {
-    /* Hide the actual space character, so only the marker is seen between words */
     font-size: 0;
     display: inline-block;
 }
@@ -149,10 +193,10 @@
 .lyric-annotated.type-breath_pause .annotation-marker {
     position: static;
     transform: none;
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--accent-primary);
     background: transparent;
-    padding: 0 0.5rem;
+    padding: 0 0.45rem;
     border: none;
     box-shadow: none;
     line-height: inherit;
@@ -167,17 +211,13 @@
     box-shadow: none;
 }
 
-/* ------------------------------------- */
-/* Purely Visual Annotations (No Labels) */
-/* ------------------------------------- */
-
-/* Hide markers for purely visual types unless editing */
-.lyric-annotated.type-stress:not(.is-editing)>.annotation-marker,
-.lyric-annotated.type-unstressed:not(.is-editing)>.annotation-marker {
+/* Stress & Unstressed — no separate marker pill */
+.lyric-annotated.type-stress:not(.is-editing) > .annotation-marker,
+.lyric-annotated.type-unstressed:not(.is-editing) > .annotation-marker {
     display: none;
 }
 
-/* 1. Linking (連字) */
+/* Linking — curved underline */
 .lyric-annotated.type-linking {
     position: relative;
 }
@@ -185,25 +225,21 @@
 .lyric-annotated.type-linking::after {
     content: '';
     position: absolute;
-    bottom: -4px;
-    /* Adjust curve placement */
+    bottom: -5px;
     left: 0;
     width: 100%;
     height: 10px;
     border-bottom: 2px solid var(--accent-primary);
     border-left: 2px solid transparent;
-    /* Required for a semi-circular curve */
     border-right: 2px solid transparent;
     border-radius: 50%;
-    /* Forms the U-shape */
     pointer-events: none;
 }
 
-/* 2. Silent (不發音) */
+/* Silent — dimmed with diagonal strikethrough */
 .lyric-annotated.type-silent {
     position: relative;
     color: var(--text-muted);
-    /* Dim the text */
 }
 
 .lyric-annotated.type-silent::after {
@@ -212,35 +248,32 @@
     top: 50%;
     left: -5%;
     width: 110%;
-    /* Slightly wider than the text */
     height: 1.5px;
-    background-color: var(--text-secondary);
+    background: var(--text-secondary);
     transform: rotate(-15deg);
-    /* Diagonal strikethrough */
     pointer-events: none;
 }
 
-/* 3. Stress (重音) */
+/* Stress — yellow highlight */
 .lyric-annotated.type-stress {
-    background-color: rgba(250, 204, 21, 0.25);
+    background-color: rgba(250, 204, 21, 0.22);
     color: #fce72b;
     font-weight: 900;
     border-radius: var(--radius-sm);
-    padding: 0 0.1em;
+    padding: 0 0.12em;
     display: inline;
 }
 
 .lyric-annotated.type-stress .annotated-text {
     background: transparent;
-    /* Remove the inner grey background */
 }
 
-/* 3b. Unstressed (輕音) */
+/* Unstressed — muted italic */
 .lyric-annotated.type-unstressed {
     color: var(--text-secondary);
-    font-size: 0.9em;
+    font-size: 0.88em;
     font-style: italic;
-    opacity: 0.8;
+    opacity: 0.75;
     display: inline;
     line-height: inherit;
 }
@@ -249,64 +282,60 @@
     background: transparent;
 }
 
-/* 4. Section (段落) */
+/* Elongated — orange highlight */
+.lyric-annotated.type-elongated {
+    background-color: rgba(255, 126, 22, 0.18);
+    border-radius: var(--radius-sm);
+    padding: 0 0.12em;
+    color: #ffb170;
+    font-weight: 700;
+}
+
+/* Section — block wrapper */
 .lyric-annotated.type-section {
     display: block;
-    background: transparent; /* Remove background box */
+    background: transparent;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 2.5rem 1.5rem 1.5rem 1.5rem;
     margin-top: 3.5rem;
     margin-bottom: 1rem;
     text-align: left;
+    position: relative;
 }
 
-/* Treat the marker as a block header, not a floating icon */
 .lyric-annotated.type-section > .annotation-marker {
     position: absolute;
-    top: -2.2rem;
+    top: -1.6rem;
     left: 0;
     transform: none;
-    /* Remove horizontal centering */
-
-    /* Override default marker truncation and styling */
     max-width: none;
     overflow: visible;
     background: transparent;
     border: none;
     box-shadow: none;
     padding: 0;
-}
-
-/* Prevent tooltip centering behavior on hover for sections */
-.lyric-annotated.type-section:hover>.annotation-marker {
-    transform: translateY(-2px) scale(1.05);
-    /* Slight lift without recentering */
-    max-width: none;
-}
-
-/* Allow users to click the marker to edit it */
-.lyric-annotated.type-section>.annotation-marker {
     pointer-events: auto;
-    /* Re-enable clicks that were disabled on base marker */
     cursor: pointer;
 }
 
-/* Style the text injected via data-marker - DIRECT CHILD ONLY */
-.lyric-annotated.type-section > .annotation-marker::before {
-    font-family: var(--font-sans);
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.05);
-    padding: 0.2rem 0.8rem;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--border-subtle);
+.lyric-annotated.type-section:hover > .annotation-marker {
+    transform: translateY(-2px);
 }
 
-/* Relocate the edit popup for sections so it aligns with the left */
+.lyric-annotated.type-section > .annotation-marker::before {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    background: rgba(139,92,246,0.07);
+    padding: 0.2rem 0.75rem;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(139,92,246,0.2);
+}
+
 .lyric-annotated.type-section .annotation-edit-popup {
     left: 0;
     transform: none;
@@ -315,111 +344,9 @@
 
 .lyric-annotated.is-editing .annotation-marker::before {
     display: none;
-    /* Hide the text, show the popup */
 }
 
-.annotation-edit-popup {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%) translateY(-100%) translateY(-0.5rem);
-    background: #1a1a1a; /* Solid background, no blur */
-    border: 1px solid var(--accent-primary);
-    padding: 0.5rem;
-    border-radius: var(--radius-sm);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Crisp shadow */
-    z-index: 200;
-}
-
-.annotation-edit-popup input {
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    font-family: var(--font-sans);
-    font-size: 0.9rem;
-    outline: none;
-    min-width: 80px;
-}
-
-.annotation-edit-popup .remove-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0.2rem;
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.annotation-edit-popup .remove-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    transform: scale(1.1);
-}
-
-/* Marker-Specific Vibrant Colors & Highlights */
-.lyric-annotated.type-elongated {
-    background-color: rgba(255, 126, 22, 0.2); /* Vibrant Orange Highlighter */
-    border-radius: var(--radius-sm);
-    padding: 0 0.1em;
-    color: #ffb170; /* Soft bright orange text */
-    font-weight: 700;
-}
-
-.lyric-annotated.type-elongated > .annotation-marker { background: #ff7e16; border-color: #ffb170; color: #fff; } /* Vibrant Orange */
-.lyric-annotated.type-aspirated > .annotation-marker { background: #ec4899; border-color: #f472b6; } /* Pink */
-.lyric-annotated.type-linking > .annotation-marker { background: #8b5cf6; border-color: #a78bfa; } /* Purple */
-.lyric-annotated.type-silent > .annotation-marker { background: #f97316; border-color: #fb923c; } /* Orange */
-.lyric-annotated.type-breath_pause > .annotation-marker { background: #3b82f6; border-color: #60a5fa; } /* Blue */
-.lyric-annotated.type-custom > .annotation-marker { background: #6366f1; border-color: #818cf8; } /* Indigo */
-.annotation-marker.type-primaryStress {
-    color: #fbbf24;
-    border-color: rgba(251, 191, 36, 0.3);
-}
-
-.annotation-marker.type-secondaryStress {
-    color: #34d399;
-    border-color: rgba(52, 211, 153, 0.3);
-}
-
-.annotation-marker.type-breath,
-.annotation-marker.type-longBreath {
-    color: #60a5fa;
-    border-color: rgba(96, 165, 250, 0.3);
-    font-size: 1.1rem;
-}
-
-.annotation-marker.type-linking {
-    color: #f472b6;
-    border-color: rgba(244, 114, 182, 0.3);
-    font-size: 1.2rem;
-    top: 1.2rem;
-    /* Linking usually happens underneath! Wait, the prompt said "above selected text". We'll keep it above. */
-    top: -1.4rem;
-}
-
-.annotation-marker.type-custom {
-    color: #a78bfa;
-    font-style: italic;
-    font-weight: 500;
-    background: var(--bg-primary);
-    padding: 0 0.3rem;
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-sm);
-}
-
-.annotation-marker.type-unstressed {
-    color: #94a3b8;
-    /* Slate-400 for a muted feel */
-    border-color: rgba(148, 163, 184, 0.3);
-}
-
-/* 5. Beat (節拍) — High contrast circular badge */
+/* Beat — cyan badge below the text */
 .lyric-annotated.type-beat {
     position: relative;
     display: inline;
@@ -433,36 +360,140 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     position: absolute;
-    top: 100%; /* Strictly below the text line */
-    bottom: auto; /* CRITICAL: Reset the bottom property from base class */
-    margin-top: 8px; /* Guaranteed clearance */
+    top: 100%;
+    bottom: auto;
+    margin-top: 8px;
     left: 50%;
     transform: translateX(-50%);
-    
+
     width: 22px;
     height: 22px;
     padding: 0;
 
     background: #00d2ff;
-    /* Vibrant Cyan/Blue */
     color: #000;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 900;
     line-height: 1;
-    /* Ensure vertical centering in flex */
     text-align: center;
     border-radius: 50%;
-    border: 2px solid white;
-    box-shadow: 0 0 8px rgba(0, 210, 255, 0.4);
+    border: 2px solid rgba(255,255,255,0.8);
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.45);
     pointer-events: auto;
     cursor: pointer;
     z-index: 25;
+    transition: all var(--transition-fast);
 }
 
-.lyric-annotated.type-beat:hover>.annotation-marker {
+.lyric-annotated.type-beat:hover > .annotation-marker {
     transform: translateX(-50%) translateY(2px) scale(1.2);
-    box-shadow: 0 0 12px rgba(0, 210, 255, 0.7);
+    box-shadow: 0 0 16px rgba(0, 210, 255, 0.7);
     background: #4de0ff;
+}
+
+/* ========================================
+   MARKER COLOR PALETTE
+   ======================================== */
+
+.lyric-annotated.type-elongated > .annotation-marker  { background: #ff7e16; border-color: rgba(255,177,112,0.5); color: #fff; }
+.lyric-annotated.type-aspirated > .annotation-marker  { background: #ec4899; border-color: rgba(244,114,182,0.5); }
+.lyric-annotated.type-linking   > .annotation-marker  { background: #8b5cf6; border-color: rgba(167,139,250,0.5); }
+.lyric-annotated.type-silent    > .annotation-marker  { background: #f97316; border-color: rgba(251,146,60,0.5);  }
+.lyric-annotated.type-custom    > .annotation-marker  { background: #6366f1; border-color: rgba(129,140,248,0.5); }
+
+/* ========================================
+   ANNOTATION EDIT POPUP
+   ======================================== */
+
+.annotation-edit-popup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%) translateY(-0.5rem);
+    background: #141420;
+    border: 1px solid var(--accent-primary);
+    padding: 0.45rem 0.6rem;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(139,92,246,0.3);
+    z-index: 300;
+}
+
+.annotation-edit-popup input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    outline: none;
+    min-width: 90px;
+}
+
+.annotation-edit-popup .remove-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.15rem;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast), transform var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.annotation-edit-popup .remove-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.1);
+}
+
+/* ========================================
+   RESPONSIVE — Tablet (≤ 900px)
+   ======================================== */
+
+@media (max-width: 900px) {
+    .annotator-sidebar {
+        width: 200px;
+        padding: 1rem 0.5rem;
+    }
+
+    .lyric-canvas {
+        padding: 2rem 2rem;
+    }
+}
+
+/* ========================================
+   RESPONSIVE — Mobile (≤ 640px)
+   ======================================== */
+
+@media (max-width: 640px) {
+    .annotator-root {
+        flex-direction: column;
+    }
+
+    .annotator-sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 0.6rem 0.75rem;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+        max-height: 60px;
+    }
+
+    .lyric-canvas {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .lyric-content {
+        font-size: 1.1rem;
+        line-height: 2.6;
+    }
 }

@@ -17,6 +17,7 @@ const SYMBOL_MAP = {
 
 const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
     const containerRef = useRef(null);
+    const canvasRef = useRef(null);
     const [activeSelection, setActiveSelection] = useState(null);
     const [editingAnnId, setEditingAnnId] = useState(null);
     const editInputRef = useRef(null);
@@ -268,14 +269,14 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
     return (
         <div className="annotator-root">
             <aside className="annotator-sidebar">
-                <SectionOutline annotations={annotations} />
+                <SectionOutline annotations={annotations} canvasRef={canvasRef} />
             </aside>
             <div className="annotator-main">
                 <AnnotationToolbar
                     onAddAnnotation={handleAddAnnotation}
                     isActiveSelection={!!activeSelection}
                 />
-                <div className="lyric-canvas glass" ref={containerRef}>
+                <div className="lyric-canvas" ref={(node) => { containerRef.current = node; canvasRef.current = node; }}>
                     <div className="lyric-content">
                         {buildRenderChunks(lyrics, annotations).map((chunk, i) => renderChunk(chunk, i))}
                     </div>

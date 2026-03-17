@@ -88,11 +88,11 @@ function App() {
           <h1>Lyric Annotator</h1>
         </div>
 
-        <div className="header-actions" style={{ display: 'flex', gap: '1rem', marginLeft: 'auto', marginRight: '2rem' }}>
-          <button className="mode-btn" onClick={handleExport}>
+        <div className="header-actions">
+          <button className="header-action-btn" onClick={handleExport}>
             Export JSON
           </button>
-          <label className="mode-btn" style={{ cursor: 'pointer', margin: 0 }}>
+          <label className="header-action-btn" style={{ cursor: 'pointer' }}>
             Import JSON
             <input
               type="file"

@@ -1,47 +1,89 @@
+/* ========================================
+   APP SHELL — Full viewport layout
+   ======================================== */
+
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  /* subtle gradient background */
-  background: radial-gradient(circle at 50% 0%, var(--bg-tertiary) 0%, var(--bg-primary) 50%, var(--bg-secondary) 100%);
+  height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 60% 0%, rgba(139,92,246,0.12) 0%, var(--bg-primary) 55%, var(--bg-secondary) 100%);
 }
 
+/* ========================================
+   HEADER
+   ======================================== */
+
 .header {
-  padding: 1.5rem 2rem;
+  flex-shrink: 0;
+  padding: 0 2rem;
+  height: 64px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(10, 10, 15, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  position: sticky;
-  top: 0;
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 100;
 }
 
+.title-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .title-container h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #fff 0%, #a0a0b0 100%);
+  font-size: 1.35rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 0%, #a0a0c0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  letter-spacing: -0.02em;
 }
 
 .title-container .accent-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--accent-primary);
+  width: 9px;
+  height: 9px;
+  background: var(--accent-primary);
   border-radius: 50%;
-  border: 2px solid var(--accent-glow);
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 0 10px 3px rgba(139,92,246,0.7);
+  flex-shrink: 0;
 }
 
+/* Header action buttons */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  margin-right: 1.5rem;
+}
+
+.header-action-btn {
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.header-action-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* Mode toggle pill */
 .mode-toggle {
+  flex-shrink: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   background: var(--bg-tertiary);
@@ -52,20 +94,19 @@
 }
 
 .mode-btn {
-  padding: 0.5rem 0.5rem;
+  padding: 0.45rem 1.25rem;
   border-radius: var(--radius-full);
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-secondary);
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: color var(--transition-normal);
   z-index: 1;
   position: relative;
   text-align: center;
-  min-width: 100px;
-  /* Ensure sufficient width */
+  white-space: nowrap;
   outline: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -88,8 +129,8 @@
   width: calc(50% - 0.25rem);
   background: var(--accent-primary);
   border-radius: var(--radius-full);
-  transition: transform var(--transition-normal);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  transition: transform var(--transition-normal) cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.55);
   z-index: 0;
 }
 
@@ -101,42 +142,42 @@
   transform: translateX(100%);
 }
 
+/* ========================================
+   MAIN CONTENT — fills remaining height
+   ======================================== */
+
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
+  overflow: hidden; /* Children scroll internally */
+  padding: 0;
 }
+
+/* ========================================
+   EDITOR MODE
+   ======================================== */
 
 .editor-section {
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding: 1.5rem 2rem;
+  overflow: hidden;
 }
 
 .editor-instruction {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .lyric-editor-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.annotator-section {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  gap: 1.5rem;
-  align-items: flex-start;
-  width: 100%;
+  gap: 0.75rem;
+  overflow: hidden;
 }
 
 .textarea-wrapper {
@@ -148,26 +189,7 @@
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: border-color var(--transition-fast);
   display: flex;
-}
-
-.editor-hint {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-}
-
-.editor-hint code {
-  background: var(--bg-tertiary);
-  padding: 0.1rem 0.3rem;
-  border-radius: var(--radius-sm);
-  color: var(--accent-primary);
-  font-family: monospace;
+  overflow: hidden;
 }
 
 .textarea-wrapper:focus-within {
@@ -182,28 +204,60 @@
   border: none;
   color: var(--text-primary);
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   line-height: 1.8;
   resize: none;
+  overflow: auto;
 }
 
 .lyrics-textarea:focus {
   outline: none;
 }
 
-.annotator-section {
+.editor-hint {
+  flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
 }
 
-/* Animations */
+.editor-hint code {
+  background: var(--bg-tertiary);
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--radius-sm);
+  color: var(--accent-primary);
+  font-family: monospace;
+}
+
+/* ========================================
+   ANNOTATOR MODE — fills full height
+   ======================================== */
+
+/* Single definition — row layout with sidebar + main */
+.annotator-section {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  overflow: hidden;
+  gap: 0;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -211,5 +265,72 @@
 }
 
 .fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* ========================================
+   RESPONSIVE — Tablet (≤ 900px)
+   ======================================== */
+
+@media (max-width: 900px) {
+  .header {
+    padding: 0 1rem;
+    height: 56px;
+  }
+
+  .header-actions {
+    margin-right: 0.75rem;
+  }
+
+  .header-action-btn {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .mode-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .editor-section {
+    padding: 1rem;
+  }
+}
+
+/* ========================================
+   RESPONSIVE — Mobile (≤ 640px)
+   ======================================== */
+
+@media (max-width: 640px) {
+  .header {
+    padding: 0 0.75rem;
+    flex-wrap: wrap;
+    height: auto;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .title-container h1 {
+    font-size: 1.1rem;
+  }
+
+  .header-actions {
+    order: 3;
+    margin-right: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .mode-toggle {
+    order: 2;
+  }
+
+  .annotator-section {
+    flex-direction: column;
+  }
+
+  .editor-section {
+    padding: 0.75rem;
+  }
 }

@@ -1,12 +1,8 @@
 .section-outline {
-    width: 260px;
-    flex-shrink: 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-subtle);
     overflow: hidden;
-    align-self: flex-start; /* Don't stretch to fill height */
 }
 
 .outline-header {

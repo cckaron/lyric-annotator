@@ -1,62 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import './SectionOutline.css';
 
-const SectionOutline = ({ annotations, containerRef }) => {
+const SectionOutline = ({ annotations, canvasRef }) => {
     const [activeSectionId, setActiveSectionId] = useState(null);
     const sections = annotations
         .filter(a => a.type === 'section')
         .sort((a, b) => a.start - b.start);
 
-    // Optional: add scroll listener to highlight active section based on scroll position
+    // Highlight active section based on scroll position within the canvas
     useEffect(() => {
-        if (!containerRef || !containerRef.current) return;
+        const scrollEl = canvasRef?.current;
+        if (!scrollEl) return;
 
         const handleScroll = () => {
             if (sections.length === 0) return;
-            // Find which section is currently centered or at top of viewport
             let currentId = null;
             let minDistance = Infinity;
 
             sections.forEach(sec => {
                 const el = document.getElementById(`section-${sec.id}`);
                 if (el) {
-                    const rect = el.getBoundingClientRect();
-                    // Distance from top of viewport to top of element
-                    const distance = Math.abs(rect.top - 100); // 100px offset to account for headers/padding
+                    const elTop = el.getBoundingClientRect().top;
+                    const distance = Math.abs(elTop - scrollEl.getBoundingClientRect().top - 80);
                     if (distance < minDistance) {
                         minDistance = distance;
                         currentId = sec.id;
                     }
                 }
             });
-            if (currentId) {
-                setActiveSectionId(currentId);
-            }
+            if (currentId) setActiveSectionId(currentId);
         };
 
-        const scrollContainer = window; // or a specific interior scrolling div
-        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-        // Run once on mount
+        scrollEl.addEventListener('scroll', handleScroll, { passive: true });
         handleScroll();
-
-        return () => scrollContainer.removeEventListener('scroll', handleScroll);
-    }, [sections, containerRef]);
+        return () => scrollEl.removeEventListener('scroll', handleScroll);
+    }, [sections, canvasRef]);
 
     const scrollToSection = (id) => {
+        const canvas = canvasRef?.current;
         const el = document.getElementById(`section-${id}`);
-        if (el) {
-            // Calculate offset: measure the actual height of sticky elements so we don't scroll under them.
-            // The sticky toolbar sits at roughly 60px (header) + toolbar height.
-            // We also add a little breathing room (16px) so the section name is cleanly visible.
-            const HEADER_HEIGHT = document.querySelector('.header')?.offsetHeight ?? 60;
-            const TOOLBAR_HEIGHT = document.querySelector('.toolbar-container')?.offsetHeight ?? 80;
-            const OFFSET = HEADER_HEIGHT + TOOLBAR_HEIGHT + 24; // 24px extra breathing room
-
-            const elementTop = el.getBoundingClientRect().top + window.scrollY;
-            window.scrollTo({
-                top: elementTop - OFFSET,
-                behavior: 'smooth'
-            });
+        if (el && canvas) {
+            const elOffsetTop = el.offsetTop;
+            const PADDING = 32;
+            canvas.scrollTo({ top: elOffsetTop - PADDING, behavior: 'smooth' });
             setActiveSectionId(id);
         }
     };
