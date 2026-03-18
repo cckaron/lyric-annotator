@@ -13,7 +13,7 @@ const ANNOTATION_TYPES = [
     { type: 'section', label: 'Section (段落)', icon: '📑', shortcut: '8' },
 ];
 
-const AnnotationToolbar = ({ onAddAnnotation }) => {
+const AnnotationToolbar = ({ onAddAnnotation, onCustomOpenChange }) => {
     const [customText, setCustomText] = useState('');
     const [isCustomOpen, setIsCustomOpen] = useState(false);
 
@@ -27,6 +27,7 @@ const AnnotationToolbar = ({ onAddAnnotation }) => {
         onAddAnnotation(type, value);
         if (type === 'custom') {
             setIsCustomOpen(false);
+            onCustomOpenChange?.(false);
             setCustomText('');
         }
     };
@@ -38,6 +39,7 @@ const AnnotationToolbar = ({ onAddAnnotation }) => {
                     <button
                         key={type}
                         className="toolbar-btn"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => handleAdd(type)}
                         title={label}
                     >
@@ -69,6 +71,7 @@ const AnnotationToolbar = ({ onAddAnnotation }) => {
                             />
                             <button
                                 className="custom-submit-btn"
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => customText.trim() && handleAdd('custom', customText.trim())}
                             >
                                 Add
@@ -77,7 +80,11 @@ const AnnotationToolbar = ({ onAddAnnotation }) => {
                     ) : (
                         <button
                             className="toolbar-btn custom-btn"
-                            onClick={() => setIsCustomOpen(true)}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                                setIsCustomOpen(true);
+                                onCustomOpenChange?.(true);
+                            }}
                             title="Custom Note"
                         >
                             <span className="btn-icon">✎</span>

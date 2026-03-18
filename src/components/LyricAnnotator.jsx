@@ -19,12 +19,21 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
     const containerRef = useRef(null);
     const canvasRef = useRef(null);
     const [activeSelection, setActiveSelection] = useState(null);
+    const lastSelectionRef = useRef(null);
+    const [isCustomNoteOpen, setIsCustomNoteOpen] = useState(false);
     const [editingAnnId, setEditingAnnId] = useState(null);
     const editInputRef = useRef(null);
 
     useEffect(() => {
         const handleSelectionChange = () => {
             if (!containerRef.current) return;
+
+            // If the user is interacting with the toolbar (e.g. typing a custom note),
+            // ignore selection changes that might be caused by focus shifts.
+            const activeEl = document.activeElement;
+            const isInToolbar = !!(activeEl && activeEl.closest && activeEl.closest('.toolbar-container'));
+            if (isInToolbar) return;
+
             const selection = window.getSelection();
             if (selection.rangeCount === 0) return;
 
@@ -38,7 +47,8 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
                 // Rebuild exact text from original lyrics array to avoid any injected UI characters
                 offsets.text = lyrics.substring(offsets.start, offsets.end);
                 setActiveSelection(offsets);
-            } else if (!editingAnnId) {  // Only clear selection if we aren't currently editing an annotation
+                lastSelectionRef.current = offsets;
+            } else if (!editingAnnId) {
                 setActiveSelection(null);
             }
         };
@@ -59,11 +69,12 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
     }, [editingAnnId]);
 
     const handleAddAnnotation = (type, value) => {
-        if (!activeSelection) return;
+        const selectionToUse = activeSelection || lastSelectionRef.current;
+        if (!selectionToUse) return;
 
-        let annStart = activeSelection.start;
-        let annEnd = activeSelection.end;
-        let annText = activeSelection.text;
+        let annStart = selectionToUse.start;
+        let annEnd = selectionToUse.end;
+        let annText = selectionToUse.text;
 
         // Automatically trim whitespace from the selection to prevent markers from being off-center
         // (Double-clicking a word often includes a trailing space)
@@ -77,16 +88,16 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
         }
 
         if (type === 'breath_pause') {
-            const spaceIndex = activeSelection.text.indexOf(' ');
+            const spaceIndex = selectionToUse.text.indexOf(' ');
             if (spaceIndex !== -1) {
                 // Pin the annotation exactly to that space character
-                annStart = activeSelection.start + spaceIndex;
+                annStart = selectionToUse.start + spaceIndex;
                 annEnd = annStart + 1;
                 annText = ' ';
             } else {
                 // Fallback: if they didn't select two words, just put it at the end of the word
-                annStart = activeSelection.end;
-                annEnd = activeSelection.end;
+                annStart = selectionToUse.end;
+                annEnd = selectionToUse.end;
                 annText = '';
             }
         }
@@ -190,6 +201,19 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
         }
 
         const ann = chunk.annotation;
+        if (ann.type === 'selection_preview') {
+            return (
+                <span
+                    key={`sel-${ann.id}`}
+                    className="selection-preview"
+                >
+                    {chunk.children && chunk.children.length > 0
+                        ? chunk.children.map((childChunk, idx) => renderChunk(childChunk, idx))
+                        : chunk.content
+                    }
+                </span>
+            );
+        }
         const isEditing = editingAnnId === ann.id;
 
         return (
@@ -274,11 +298,27 @@ const LyricAnnotator = ({ lyrics, annotations, onAnnotationsChange }) => {
             <div className="annotator-main">
                 <AnnotationToolbar
                     onAddAnnotation={handleAddAnnotation}
+                    onCustomOpenChange={setIsCustomNoteOpen}
                     isActiveSelection={!!activeSelection}
                 />
                 <div className="lyric-canvas" ref={(node) => { containerRef.current = node; canvasRef.current = node; }}>
                     <div className="lyric-content">
-                        {buildRenderChunks(lyrics, annotations).map((chunk, i) => renderChunk(chunk, i))}
+                        {buildRenderChunks(
+                            lyrics,
+                            (isCustomNoteOpen && (activeSelection || lastSelectionRef.current))
+                                ? [
+                                    ...annotations,
+                                    {
+                                        id: '__selection_preview__',
+                                        type: 'selection_preview',
+                                        start: (activeSelection || lastSelectionRef.current).start,
+                                        end: (activeSelection || lastSelectionRef.current).end,
+                                        value: '',
+                                        text: ''
+                                    }
+                                ]
+                                : annotations
+                        ).map((chunk, i) => renderChunk(chunk, i))}
                     </div>
                 </div>
             </div>

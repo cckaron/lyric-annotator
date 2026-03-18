@@ -111,6 +111,16 @@
     color: #fff;
 }
 
+/* Stable selection preview (used when toolbar focus hides native selection highlight) */
+.selection-preview {
+    background: var(--accent-glow);
+    color: #fff;
+    border-radius: 4px;
+    padding: 0 0.06em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
 /* ========================================
    ANNOTATION BASE STYLES
    ======================================== */
